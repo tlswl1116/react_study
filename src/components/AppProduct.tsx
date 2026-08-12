@@ -20,12 +20,14 @@ const AppProduct = () => {
   } = useQuery({
     queryKey: ["products", checked],
     queryFn: async () => {
+      console.log("fetching");
       return fetch(!checked ? "/data/product.json" : "/data/sale_product.json", {
         method: "GET",
       }).then((res) => {
         return res.json();
       });
     },
+    refetchOnWindowFocus: false,
   });
 
   return (
