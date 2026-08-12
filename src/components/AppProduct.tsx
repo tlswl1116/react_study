@@ -1,6 +1,7 @@
 import { useState } from "react";
-import useProducts from "../hooks/use-products";
+// import useProducts from "../hooks/use-products";
 import { Button, ButtonSub } from "./Buttons";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProductProps {
   name: string;
@@ -11,7 +12,21 @@ interface ProductProps {
 
 const AppProduct = () => {
   const [checked, setChecked] = useState(false);
-  const { loading, error, datas } = useProducts<ProductProps>({ url: !checked ? "/data/product.json" : "/data/sale_product.json" });
+  // const { loading, error, datas } = useProducts<ProductProps>({ url: !checked ? "/data/product.json" : "/data/sale_product.json" });
+  const {
+    isLoading,
+    isError,
+    data: products,
+  } = useQuery({
+    queryKey: ["products", checked],
+    queryFn: async () => {
+      return fetch(!checked ? "/data/product.json" : "/data/sale_product.json", {
+        method: "GET",
+      }).then((res) => {
+        return res.json();
+      });
+    },
+  });
 
   return (
     <div>
@@ -20,13 +35,13 @@ const AppProduct = () => {
         <label htmlFor="sale">세일상품</label>
         <input type="checkbox" id="sale" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
       </div>
-      {loading ? (
+      {isLoading ? (
         <h2>로딩중...</h2>
-      ) : error ? (
+      ) : isError ? (
         <h2>에러ㅜㅜ</h2>
       ) : (
         <dl>
-          {datas?.map((item, idx) => {
+          {products?.map((item: ProductProps, idx: number) => {
             return (
               <div key={`main-${idx}`}>
                 <dt>{item.name}</dt>
@@ -39,9 +54,10 @@ const AppProduct = () => {
         </dl>
       )}
 
-      <div>
+      <div style={{ display: "flex", justifyContent: "center", gap: "4px" }}>
         <Button text="확인" onClick={() => {}} />
         <ButtonSub text="취소" onClick={() => {}} />
+        <button className="button2">etc</button>
       </div>
     </div>
   );

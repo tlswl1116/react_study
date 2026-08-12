@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 
 const useProducts = <T,>({ url }: { url: string }) => {
-  const [datas, setDatas] = useState<T[] | null>([]);
-  const [loading, setLoading] = useState(true);
+  const [datas, setDatas] = useState<T[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [prevUrl, setPrevUrl] = useState(url);
+
+  if (url !== prevUrl) {
+    setPrevUrl(url);
+    setLoading(true);
+    setError(false);
+  }
 
   useEffect(() => {
-    if (!loading) {
-      setLoading(true);
-      setError(false);
-    }
-
     fetch(url, {
       method: "GET",
     })
@@ -23,7 +25,7 @@ const useProducts = <T,>({ url }: { url: string }) => {
       })
       .catch(() => {
         setError(true);
-        throw new Error("실패");
+        // throw new Error("실패");
       })
       .finally(() => {
         setLoading(false);
